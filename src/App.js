@@ -73,6 +73,10 @@ function App() {
           transfer.amount,
           transfer.to
         );
+
+        await trans.wait();
+
+        console.log("Transfer created: ", trans.hash);
         console.log(trans);
       } else {
         console.log("obj doesnt exist");
