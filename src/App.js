@@ -5,8 +5,10 @@ import abi from "./utils/MswPortal.json";
 
 function App() {
   const [currentAccount, setCurrentAccount] = useState("");
-  const [approverS, setApproverS] = useState("");
+  const [approverS, setApproverS] = useState(undefined);
   const [quoruM, setQuoruM] = useState("");
+  const [transfer, setTransfer] = useState(undefined);
+  const [allTransfers, setAllTransfers] = useState([]);
 
   const contractAddress = "0x6e9F7074b894D2AD7B8bb73B18250280BefC7cC5";
   const contractAbi = abi.abi;
@@ -43,15 +45,18 @@ function App() {
 
       const approvers = await mswPortalContract.getApprovers();
       const quorum = await mswPortalContract.quorum();
+      const transfers = await mswPortalContract.getTransfers();
 
       setApproverS(approvers);
       setQuoruM(quorum);
+      console.log(transfers);
+      setAllTransfers(transfers);
     } catch (error) {
       console.log(error);
     }
   };
 
-  const createTransfer = async (amount, to) => {
+  const createTransfer = async (transfer) => {
     try {
       const { ethereum } = window;
 
@@ -64,12 +69,28 @@ function App() {
           signer
         );
 
-        let trans = await mswPortalContract.createTransfer(amount, to);
+        let trans = await mswPortalContract.createTransfer(
+          transfer.amount,
+          transfer.to
+        );
         console.log(trans);
       } else {
         console.log("obj doesnt exist");
       }
     } catch (error) {}
+  };
+
+  const updateTransfer = (e, field) => {
+    const value = e.target.value;
+    setTransfer({
+      ...transfer,
+      [field]: value,
+    });
+  };
+
+  const submit = (e) => {
+    e.preventDefault();
+    createTransfer(transfer);
   };
 
   useEffect(() => {
@@ -80,7 +101,9 @@ function App() {
     <div className="App">
       <header>
         <ul>
-          <li>Approvers: {approverS.join(", ")}</li>
+          <li>
+            Approvers: {!approverS ? "no approvers" : approverS.join(", ")}
+          </li>
           <li>Quorum: {quoruM.toString()}</li>
         </ul>
       </header>
@@ -88,13 +111,50 @@ function App() {
       <h1>Hello {currentAccount}</h1>
 
       <div>
-        <form>
+        <h2>Create transfer</h2>
+        <form onSubmit={(e) => submit(e)}>
           <label htmlFor="amount">Amount: </label>
-          <input id="amount" type="text" />
+          <input
+            id="amount"
+            type="text"
+            onChange={(e) => updateTransfer(e, "amount")}
+          />
           <label htmlFor="to">To: </label>
-          <input id="to" type="text" />
+          <input
+            id="to"
+            type="text"
+            onChange={(e) => updateTransfer(e, "to")}
+          />
           <button>Submit</button>
         </form>
+      </div>
+
+      <div>
+        <h2>Transfers</h2>
+        <table>
+          <thead>
+            <tr>
+              <td>ID</td>
+              <td>AMOUNT</td>
+              <td>TO</td>
+              <td>APPROVALS</td>
+              <td>SENT</td>
+            </tr>
+          </thead>
+          <tbody>
+            {allTransfers.length > 0
+              ? allTransfers.map((trans) => (
+                  <tr>
+                    <td>{trans.id.toString()}</td>
+                    <td>{trans.amount.toString()}</td>
+                    <td>{trans.to.toString()}</td>
+                    <td>{trans.approvals.toString()}</td>
+                    <td>{trans.sent ? "yes" : "no"}</td>
+                  </tr>
+                ))
+              : "no"}
+          </tbody>
+        </table>
       </div>
     </div>
   );
