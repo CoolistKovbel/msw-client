@@ -1,14 +1,32 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import "./App.css";
 
 function App() {
-  const checkIfWalletIsConnected = () => {
-    const { ethereum } = window;
+  const [currenctAccount, setCurrentAccount] = useState("");
 
-    if (!ethereum) {
-      console.log("makeSure you have metamask");
-    } else {
-      console.log("we have ethereum object: ", ethereum);
+  const checkIfWalletIsConnected = async () => {
+    try {
+      const { ethereum } = window;
+
+      if (!ethereum) {
+        console.log("makeSure you have metamask");
+      } else {
+        console.log("we have ethereum object: ", ethereum);
+      }
+
+      const accounts = await ethereum.request({
+        method: "eth_requestAccounts",
+      });
+
+      if (accounts.length !== 0) {
+        const account = accounts[0];
+        console.log("Found an authorized account: ", account);
+        setCurrentAccount(account);
+      } else {
+        console.log("No account found");
+      }
+    } catch (error) {
+      console.log(error);
     }
   };
 
@@ -18,7 +36,7 @@ function App() {
 
   return (
     <div className="App">
-      <h1>Hello world</h1>
+      <h1>Hello {currenctAccount}</h1>
     </div>
   );
 }
