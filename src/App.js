@@ -10,7 +10,7 @@ function App() {
   const [transfer, setTransfer] = useState(undefined);
   const [allTransfers, setAllTransfers] = useState([]);
 
-  const contractAddress = "0xA22E655767F223aCB1A9c705526c6c2c58b59D9F";
+  const contractAddress = "0x5EF38936337294581d04141457511f6cFA9f5186";
   const contractAbi = abi.abi;
 
   const checkIfWalletIsConnected = async () => {
