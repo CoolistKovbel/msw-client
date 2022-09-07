@@ -10,7 +10,7 @@ function App() {
   const [transfer, setTransfer] = useState(undefined);
   const [allTransfers, setAllTransfers] = useState([]);
 
-  const contractAddress = "0x6e9F7074b894D2AD7B8bb73B18250280BefC7cC5";
+  const contractAddress = "0xA22E655767F223aCB1A9c705526c6c2c58b59D9F";
   const contractAbi = abi.abi;
 
   const checkIfWalletIsConnected = async () => {
@@ -81,7 +81,36 @@ function App() {
       } else {
         console.log("obj doesnt exist");
       }
-    } catch (error) {}
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const approveTransfer = async (id) => {
+    try {
+      const { ethereum } = window;
+
+      if (ethereum) {
+        const provider = new ethers.providers.Web3Provider(ethereum);
+        const signer = provider.getSigner();
+        const mswPortalContract = new ethers.Contract(
+          contractAddress,
+          contractAbi,
+          signer
+        );
+
+        let trans = await mswPortalContract.approveTransfer(id);
+
+        await trans.wait();
+
+        console.log("Transfer created: ", trans.hash);
+        console.log(trans);
+      } else {
+        console.log("obj doesnt exist");
+      }
+    } catch (error) {
+      console.log(error);
+    }
   };
 
   const updateTransfer = (e, field) => {
@@ -95,6 +124,10 @@ function App() {
   const submit = (e) => {
     e.preventDefault();
     createTransfer(transfer);
+    setTransfer({
+      amount: "",
+      to: "",
+    });
   };
 
   useEffect(() => {
@@ -152,7 +185,14 @@ function App() {
                     <td>{trans.id.toString()}</td>
                     <td>{trans.amount.toString()}</td>
                     <td>{trans.to.toString()}</td>
-                    <td>{trans.approvals.toString()}</td>
+                    <td>
+                      {trans.approvals.toString()}
+                      <button
+                        onClick={() => approveTransfer(trans.id.toString())}
+                      >
+                        Approve
+                      </button>
+                    </td>
                     <td>{trans.sent ? "yes" : "no"}</td>
                   </tr>
                 ))
