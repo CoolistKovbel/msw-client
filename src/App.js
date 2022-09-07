@@ -136,19 +136,22 @@ function App() {
 
   return (
     <div className="App">
+      <h1>Hello {currentAccount}</h1>
       <header>
         <ul>
           <li>
-            Approvers: {!approverS ? "no approvers" : approverS.join(", ")}
+            Approvers: <br />
+            {!approverS ? "no approvers" : approverS.join(", ")}
           </li>
-          <li>Quorum: {quoruM.toString()}</li>
+          <li>
+            Quorum: <br />
+            {quoruM.toString()}
+          </li>
         </ul>
       </header>
 
-      <h1>Hello {currentAccount}</h1>
-
-      <div>
-        <h2>Create transfer</h2>
+      <div className="createTransfer">
+        <h2 className="headings">Create transfer</h2>
         <form onSubmit={(e) => submit(e)}>
           <label htmlFor="amount">Amount: </label>
           <input
@@ -166,8 +169,8 @@ function App() {
         </form>
       </div>
 
-      <div>
-        <h2>Transfers</h2>
+      <div className="transferList">
+        <h2 className="headings">Transfers</h2>
         <table>
           <thead>
             <tr>
@@ -188,6 +191,7 @@ function App() {
                     <td>
                       {trans.approvals.toString()}
                       <button
+                        className="approveButton"
                         onClick={() => approveTransfer(trans.id.toString())}
                       >
                         Approve
